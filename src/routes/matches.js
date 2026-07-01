@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import { createMatchSchema, listMatchesQuerySchema } from '../validation/matches.js';
 import { db } from '../db/db.js';
 import { matches } from '../db/schema.js';
@@ -15,20 +16,20 @@ matchRouter.get("/", async (req, res) => {
   if (!parsed.success) {
     return res.status(400).json({
       error: "Invalid Query",
-      details: JSON.stringify(parsed.error)
+      details: parsed.error.issues
     });
   }
 
-  const limit = Math.min(parsed.data.limit ?? 50 ,MAX_LIMIT);
+  const limit = Math.min(parsed.data.limit ?? 50, MAX_LIMIT);
 
   try {
     const data = await db.select().from(matches).orderBy(desc(matches.createdAt)).limit(limit);
 
-    res.json({data});
+    res.json({ data });
 
   } catch (error) {
     console.log(error)
-      res.status(500).json({error:'Failed to list matches'})
+    res.status(500).json({ error: 'Failed to list matches' })
   }
 
 });
@@ -37,7 +38,7 @@ matchRouter.post('/', async (req, res) => {
   if (!parsed.success) {
     return res.status(400).json({
       error: "Invalid payload",
-      details: JSON.stringify(parsed.error)
+      details: parsed.error.issues
     });
   }
 
