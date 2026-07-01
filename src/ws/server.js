@@ -28,9 +28,8 @@ export function attachWebSocketServer(server) {
       if (ws.isAlive === false) return ws.terminate();
       ws.isAlive = false;
       ws.ping();
-    }, 3000);
-  })
-
+    });
+  }, 3000)
   wss.on('close',()=>clearInterval(interval));
 
   function broadCastMatchCreated(match) {
