@@ -13,11 +13,12 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "drizzle-orm": "^0.45.2",
     "dotenv": "^16.3.1",
+    "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
     "pg": "^8.11.2",
-    "ws": "^8.21.0"
+    "ws": "^8.21.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^25.9.3",
