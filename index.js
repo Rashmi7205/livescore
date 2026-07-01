@@ -6,7 +6,7 @@ import { attachWebSocketServer } from "./src/ws/server.js";
 const app = express();
 
 const PORT = Number(process.env.PORT) || 3000;
-const HOST = Number(process.env.HOST) || '0.0.0.0';
+const HOST = process.env.HOST || '0.0.0.0';
 
 app.use(express.json());
 
