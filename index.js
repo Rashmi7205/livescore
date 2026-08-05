@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
   res.send('Hello from Express Server!');
 });
 
-app.use(securityMiddleware());
+app.use(securityMiddleware);
 
 app.use("/matches", matchRouter);
 
