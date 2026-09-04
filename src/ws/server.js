@@ -5,6 +5,7 @@ import { wsArcjet } from "../arcject.js";
 const matchSubscribers = new Map();
 
 function subscribe(matchId, socket) {
+  matchId = Number(matchId);
   if (!matchSubscribers.has(matchId)) {
     matchSubscribers.set(matchId, new Set());
   }
@@ -13,6 +14,7 @@ function subscribe(matchId, socket) {
 }
 
 function unsubscribe(matchId, socket) {
+  matchId = Number(matchId);
   const subscribers = matchSubscribers.get(matchId);
 
   if (!subscribers) {
@@ -35,6 +37,7 @@ function cleanupSubscriptions(socket) {
 }
 
 function broadcastToMatch(matchId, payload) {
+  matchId = Number(matchId);
   const subscribers = matchSubscribers.get(matchId);
   if (!subscribers || subscribers.size === 0) {
     return;
@@ -57,23 +60,26 @@ function handleMessage(socket, data) {
     sendJson(socket, {
       type: 'error',
       message: 'Invalid JSON'
-    })
+    });
+    return;
   }
   if (message?.type === 'subscribe' && Number.isInteger(message.matchId)) {
-    subscribe(message.matchId, socket);
-    socket.subscriptions.add(message.matchId);
+    const matchId = Number(message.matchId);
+    subscribe(matchId, socket);
+    socket.subscriptions.add(matchId);
     sendJson(socket, {
-      type: 'subscribed', matchId: message.matchId
+      type: 'subscribed', matchId
     });
     return;
   }
 
   if (message?.type === 'unsubscribe' && Number.isInteger(message.matchId)) {
-    unsubscribe(message.matchId, socket);
-    socket.subscriptions.delete(message.matchId);
+    const matchId = Number(message.matchId);
+    unsubscribe(matchId, socket);
+    socket.subscriptions.delete(matchId);
     sendJson(socket, {
       type: 'unsubscribed',
-      matchId: message.matchId
+      matchId
     });
   }
 
@@ -123,11 +129,17 @@ export function attachWebSocketServer(server) {
       handleMessage(socket, data);
     })
 
-    socket.on('error', () => {
+    socket.on('error', (err) => {
+      console.error('WS socket error', err);
       socket.terminate();
     });
 
-    socket.on('close', () => {
+    socket.on('close', (code, reason) => {
+      try {
+        console.log('WS socket closed', code, reason && reason.toString());
+      } catch (e) {
+        console.log('WS socket closed', code);
+      }
       cleanupSubscriptions(socket);
     })
 
